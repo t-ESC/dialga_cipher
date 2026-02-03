@@ -132,7 +132,7 @@ const PBI_INV: [[u8; 8];4] = [
 	[5, 2, 3, 4, 1, 6, 7, 0],
 ];
 
-fn permute_bits(byte: u8, i: usize) -> u8 {
+pub fn permute_bits(byte: u8, i: usize) -> u8 {
     let mut permuted_bit_array = BitArray::from(byte);
     let original_bit_array = BitArray::from(byte);
 
@@ -143,7 +143,7 @@ fn permute_bits(byte: u8, i: usize) -> u8 {
     permuted_bit_array.into()
 }
 
-fn permute_bits_inv(byte: u8, i: usize) -> u8 {
+pub fn permute_bits_inv(byte: u8, i: usize) -> u8 {
     let mut permuted_bit_array = BitArray::from(byte);
     let original_bit_array = BitArray::from(byte);
 

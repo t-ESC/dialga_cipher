@@ -50,5 +50,17 @@ mod tests {
             assert_eq!(test_case, result);
         }
     }
+
+    #[test]
+    fn test_permute_bits_and_inv() {
+        for i in 0..4 {
+            println!("Testing i={}", i);
+            for test_case in 0..=0xFF {
+                let permuted = permute_bits(test_case, i);
+                let result = permute_bits_inv(permuted, i);
+                assert_eq!(test_case, result);
+            }
+        }
+    }
 }
 
