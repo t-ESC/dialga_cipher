@@ -1,6 +1,18 @@
 use crate::helper::state::*;
 use crate::helper::bitarray::*;
 
+pub fn r_i(state: &mut State, i: usize) { // roundfunction, called r_1 in paper
+    sub_cell(state, i);
+    byte_permutation(state, i);
+    matrix_mul(state, i);
+}
+
+pub fn r_i_inv(state: &mut State, i: usize) {
+    matrix_mul(state, i);
+    byte_permutation_inv(state, i); //only asymmetric function
+    sub_cell(state, i);
+}
+
 pub fn matrix_mul(state: &mut State, i: usize) { // make state mutalble for now (i think this is the better way, can check AES impl later
     
     /* State column multiplied with Matrix --> self inverse

@@ -76,5 +76,15 @@ mod tests {
         }
     }
 
+    #[test]
+    fn roundfunction_roundabout() {
+        let mut state = TEST_STATE;
+        for i in 0..4 {
+            r_i(&mut state, i);
+            r_i_inv(&mut state, i);
+            assert_eq!(TEST_STATE, state);
+        }
+    }
+
 }
 
