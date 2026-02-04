@@ -22,3 +22,9 @@ impl From<[u8; 16]> for State {
         State::from_flat(value)
     }
 }
+
+impl From<u128> for State {
+    fn from(value: u128) -> Self {
+        State::from_flat(value.to_be_bytes())
+    }
+}

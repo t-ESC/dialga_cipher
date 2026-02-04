@@ -17,8 +17,8 @@ mod tests {
     fn test_state_from() {
         let state1 = State::from([0xFF_u8, 0x10, 0x20, 0x30, 0x01, 0x11, 0x21, 0x31, 0x02, 0x12, 0x22, 0x32, 0x03, 0x13, 0x23, 0x33]);
         assert_eq!(TEST_STATE, state1);
-
-        println!("{:?}", state1);
+        let state2 = State::from(0xFF102030011121310212223203132333_u128);
+        assert_eq!(TEST_STATE, state2);
     }
 
     #[test]
