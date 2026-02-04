@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn test_matrix_mul() {
         let mut state: State = TEST_STATE;
-        
+
         for i in 0..4 {
             matrix_mul(&mut state, i);
             matrix_mul(&mut state, i);
@@ -100,6 +100,15 @@ mod tests {
             r_i_inv(&mut state, i);
             assert_eq!(TEST_STATE, state);
         }
+    }
+
+    #[test]
+    fn test_roundfunction(){
+        let mut before:State = State::from(0x331177113311ff11331177113311ff11_u128);
+        let result:State = State::from(0xaa88aa33aacc5577cceecc11ccbb6644_u128);
+
+        r_i(&mut before, 0);
+        assert_eq!(before, result);
     }
 
 }
