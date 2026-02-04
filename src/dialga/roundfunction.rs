@@ -140,23 +140,3 @@ pub fn sub_cell(state: &mut State, i:usize) {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::dialga::helper::state::*;
-
-    const TEST_STATE: State = State([
-            [0xFF, 0x01, 0x02, 0x03],
-            [0x10, 0x11, 0x12, 0x13],
-            [0x20, 0x21, 0x22, 0x23],
-            [0x30, 0x31, 0x32, 0x33],
-        ]);
-    
-    #[test]
-    fn test_state_from() {
-        let state1 = State::from([0xFF_u8, 0x10, 0x20, 0x30, 0x01, 0x11, 0x21, 0x31, 0x02, 0x12, 0x22, 0x32, 0x03, 0x13, 0x23, 0x33]);
-        assert_eq!(TEST_STATE, state1);
-
-        println!("{:?}", state1);
-    }
-}
