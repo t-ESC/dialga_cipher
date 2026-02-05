@@ -23,6 +23,7 @@ mod tests {
         0x112233445566778899aabbccddeeff00,
     ];
     const TWEAK:u128 = 0x2233445566778899aabbccddeeff0011;
+    const CIPHERTEXT:u128 = 0x838407143af9a876fbdc6be378e9045b; // of dialga 128 reduced
 
     #[test]
     fn test_state_from() {
@@ -59,7 +60,6 @@ mod tests {
     #[test]
     fn test_permute_bits_and_inv() {
         for i in 0..4 {
-            println!("Testing i={}", i);
             for test_case in 0..=0xFF {
                 let permuted = permute_bits(test_case, i);
                 let result = permute_bits_inv(permuted, i);
@@ -92,10 +92,18 @@ mod tests {
         let mut state: State = TEST_STATE;
 
         for i in 0..4 {
-            matrix_mul(&mut state, i);
-            matrix_mul(&mut state, i);
+            matrix_mul_old(&mut state, i);
+            matrix_mul_old(&mut state, i);
             assert_eq!(TEST_STATE, state);
         }
+    }
+    #[test]
+    fn test_matrix_mul() {
+        let mut state: State = TEST_STATE;
+
+        matrix_mul(&mut state);
+        matrix_mul(&mut state);
+        assert_eq!(TEST_STATE, state);
     }
 
     #[test]
@@ -143,8 +151,6 @@ mod tests {
         let mut test_state = State::from(start);
         r_i(&mut test_state, 0);
         let output:u128 = test_state.into();
-        println!("{:b}", output);
-        println!("{:b}", desired_output);
         assert_eq!(output, desired_output);
     }
 

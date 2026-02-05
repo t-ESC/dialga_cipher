@@ -4,36 +4,42 @@ use crate::dialga::helper::bitarray::BitArray;
 pub fn r_i(state: &mut State, i: usize) { // roundfunction, called r_1 in paper
     sub_cell(state);
     byte_permutation(state, i);
-    matrix_mul(state, i);
+    matrix_mul(state);
 }
 
 pub fn r_i_inv(state: &mut State, i: usize) {
-    matrix_mul(state, i);
+    matrix_mul(state);
     byte_permutation_inv(state, i); //only asymmetric function
     sub_cell(state);
 }
 
-pub fn matrix_mul(state: &mut State, i: usize) { // make state mutalble for now (i think this is the better way, can check AES impl later
-    
-    /* State column multiplied with Matrix --> self inverse
+#[deprecated]
+pub fn matrix_mul_old(state: &mut State, i: usize) { // make state mutalble for now (i think this is the better way, can check AES impl later
+    let pre_mix:State = *state;
+
+    // Wrong!!
+    state.0[0][i] = pre_mix.0[1][i] ^ pre_mix.0[2][i] ^ pre_mix.0[3][i];
+    state.0[1][i] = pre_mix.0[0][i] ^ pre_mix.0[2][i] ^ pre_mix.0[3][i];
+    state.0[2][i] = pre_mix.0[0][i] ^ pre_mix.0[1][i] ^ pre_mix.0[3][i];
+    state.0[3][i] = pre_mix.0[0][i] ^ pre_mix.0[1][i] ^ pre_mix.0[2][i];
+}
+
+pub fn matrix_mul(state: &mut State) { //Midori shuffles every column of the matrix, maybe they do here too
+
+    /* i-th State column multiplied with Matrix --> self inverse
     * (0 1 1 1)
     * (1 0 1 1)
     * (1 1 0 1)
     * (1 1 1 0)*/
 
-    let pre_mix:State = *state;
-    
-    // for j in 0..4{ //Midori shuffles every column of the matrix, maybe they do here too
-    //     state.0[0][j] = pre_mix.0[1][j] ^ pre_mix.0[2][j] ^ pre_mix.0[3][j];
-    //     state.0[1][j] = pre_mix.0[0][j] ^ pre_mix.0[2][j] ^ pre_mix.0[3][j];
-    //     state.0[2][j] = pre_mix.0[0][j] ^ pre_mix.0[1][j] ^ pre_mix.0[3][j];
-    //     state.0[3][j] = pre_mix.0[0][j] ^ pre_mix.0[1][j] ^ pre_mix.0[2][j];
-    // }
+    let pre_mix: [[u8; 4]; 4] = state.0;
 
-    state.0[0][i] = pre_mix.0[1][i] ^ pre_mix.0[2][i] ^ pre_mix.0[3][i];
-    state.0[1][i] = pre_mix.0[0][i] ^ pre_mix.0[2][i] ^ pre_mix.0[3][i];
-    state.0[2][i] = pre_mix.0[0][i] ^ pre_mix.0[1][i] ^ pre_mix.0[3][i];
-    state.0[3][i] = pre_mix.0[0][i] ^ pre_mix.0[1][i] ^ pre_mix.0[2][i];
+    for col in 0..4 {
+        state.0[col][0] = pre_mix[col][1] ^ pre_mix[col][2] ^ pre_mix[col][3];
+        state.0[col][1] = pre_mix[col][0] ^ pre_mix[col][2] ^ pre_mix[col][3];
+        state.0[col][2] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][3];
+        state.0[col][3] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][2];
+    }
 }
 
 const PI: [[u8; 16];4] = [
