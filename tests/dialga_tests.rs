@@ -69,18 +69,26 @@ mod tests {
     }
 
     #[test]
-    fn test_sub_cell() {
+    fn test_sub_cell_old() {
         for i in 0..4 {
             let mut state = TEST_STATE;
-            sub_cell(&mut state, i);
-            sub_cell(&mut state, i);
+            sub_cell_old(&mut state, i);
+            sub_cell_old(&mut state, i);
             assert_eq!(TEST_STATE, state);
 
         }
     }
 
     #[test]
-    fn test_matrix_mul() {
+    fn test_sub_cell() {
+        let mut state = TEST_STATE;
+        sub_cell(&mut state);
+        sub_cell(&mut state);
+        assert_eq!(TEST_STATE, state);
+    }
+
+    #[test]
+    fn test_matrix_mul_old() {
         let mut state: State = TEST_STATE;
 
         for i in 0..4 {
@@ -150,6 +158,18 @@ mod tests {
         r_i(&mut output_state, 1);
         let output:u128 = output_state.into();
         assert_eq!(output, desired_output);
+    }
+
+    #[test]
+    fn test_sub_cell_outside_r_i() {
+        let desired_output = CIPHERTEXT ^ KEY[0] ^ KEY[1];
+        let r16: u128 = 0x92a33e3c3115979441131a892119bed7;
+        let mut test_state = State::from(r16);
+
+        sub_cell(&mut test_state);
+        let result:u128 = test_state.into();
+
+        assert_eq!(desired_output, result);
     }
 
 }
