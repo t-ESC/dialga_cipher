@@ -39,11 +39,13 @@ pub fn permute_bits_inv(byte: u8, i: usize) -> u8 {
 
 const SB0: [u8;16] = [0xc, 0xa, 0xd, 3, 0xe, 0xb, 0xf, 7, 8, 9, 1, 5, 0, 2, 4, 6]; //4-bit sbox, used in parallel, symmetrical SBOX
 
-#[deprecated]
-pub fn sub_cell_old(state: &mut State, i:usize) { // assumption that I was set by R_i
-    for col in 0..4 {
-        for row in 0..4 {
-            let mut  state_i = state.0[col][row];
+pub fn sub_cell(state: &mut State) {
+    let i_sbox: [usize; 4] = [0, 3, 2, 1]; // WTF why is this happening???
+
+    for row in 0..4 {
+        for col in 0..4 {
+            let i = i_sbox[row];
+            let mut state_i = state.0[row][col];
             state_i = permute_bits(state_i, i);
 
             let mut high_bits = state_i >> 4;
@@ -51,29 +53,11 @@ pub fn sub_cell_old(state: &mut State, i:usize) { // assumption that I was set b
 
             high_bits = SB0[high_bits as usize];
             low_bits = SB0[low_bits as usize];
-
+        
             state_i = (high_bits << 4) + low_bits;
             state_i = permute_bits_inv(state_i, i);
-            state.0[col][row] = state_i;
-        }
-    }
-}
 
-pub fn sub_cell(state: &mut State) {
-    for col in 0..4 {
-        for row in 0..4 {
-            let mut state_i = state.0[col][row];
-            state_i = permute_bits(state_i, col);
-
-            let mut high_bits = state_i >> 4;
-            let mut low_bits = state_i & 0b00001111;
-
-            high_bits = SB0[high_bits as usize];
-            low_bits = SB0[low_bits as usize];
-
-            state_i = (high_bits << 4) + low_bits;
-            state_i = permute_bits_inv(state_i, col);
-            state.0[col][row] = state_i;
+            state.0[row][col] = state_i;
         }
     }
 }
