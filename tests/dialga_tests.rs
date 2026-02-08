@@ -88,8 +88,8 @@ mod tests {
     #[test]
     fn test_sub_cell() {
         let mut state = State::from(PAINTEXT);
-        sub_cell(&mut state);
-        sub_cell(&mut state);
+        sub_cell_inv(&mut state);
+        sub_cell_inv(&mut state);
         assert_eq!(State::from(PAINTEXT), state);
     }
 
@@ -156,8 +156,7 @@ mod tests {
         
         let mut test_state = State::from(start);
         r_i(&mut test_state, 0);
-        let output:u128 = test_state.into();
-        assert_eq!(output, desired_output);
+        assert_eq!(State::from(desired_output), test_state);
     }
 
     #[test]
@@ -168,22 +167,20 @@ mod tests {
         let desired_output = r_2 ^ KEY[0] ^ TWEAK ^ roundconstants::C_F[1];
         let mut output_state = State::from(r_1);
         r_i(&mut output_state, 1);
-        let output:u128 = output_state.into();
-        assert_eq!(output, desired_output);
+        assert_eq!(State::from(desired_output), output_state);
     }
 
     #[test]
     fn test_sub_cell_outside_r_i() {
-        let desired_output = CIPHERTEXT ^ KEY[0] ^ KEY[1];
+        let output = CIPHERTEXT ^ KEY[0] ^ KEY[1];
         let r16: u128 = 0x92a33e3c3115979441131a892119bed7;
         let mut test_state = State::from(r16);
 
-        println!("{:?}", State::from(r16));
+        println!("{:?}", test_state);
 
-        sub_cell(&mut test_state);
-        let result:u128 = test_state.into();
+        sub_cell_inv(&mut test_state);
 
-        assert_eq!(State::from(desired_output), test_state);
+        assert_eq!(State::from(output), test_state);
     }
 
     #[test]
@@ -194,7 +191,7 @@ mod tests {
 
         println!("{:?}", test_state);
 
-        sub_cell(&mut test_state);
+        sub_cell_inv(&mut test_state);
         assert_eq!(State::from(r16), test_state); // Works only if substitution 1 and 3 are flipped
         // Also need to replace PI_2 with entirely different permutations (which then make it match what we expect)
     }
@@ -206,7 +203,7 @@ mod tests {
         let first_state = State([[0; 4], [0; 4], [62, 151, 26, 190], [0; 4]]);
 
         let mut test_state = permuted_state;
-        sub_cell(&mut test_state);
+        sub_cell_inv(&mut test_state);
 
         assert_eq!(first_state.0[2], test_state.0[2]);
 
