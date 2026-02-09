@@ -155,6 +155,7 @@ mod tests {
         let desired_output  = r_1 ^ KEY[1] ^ roundconstants::C_F[0];
         
         let mut test_state = State::from(start);
+        println!("{:?}", test_state);
         r_i(&mut test_state, 0);
         assert_eq!(State::from(desired_output), test_state);
     }
@@ -194,6 +195,20 @@ mod tests {
         sub_cell_inv(&mut test_state);
         assert_eq!(State::from(r16), test_state); // Works only if substitution 1 and 3 are flipped
         // Also need to replace PI_2 with entirely different permutations (which then make it match what we expect)
+    }
+
+    #[test]
+    fn test_sub_cell_outside_r_i_dialga256() { // MS might be incorrect
+        let mut tweak_1 = State::from(0x33445566778899aabbccddeeff001100);
+        ms(&mut tweak_1);
+        let ms_tweak_1:u128 = tweak_1.into();
+        let desired_output:u128 = CIPHERTEXT ^ KEY[0] ^ KEY[1] ^ ms_tweak_1;
+        let r16:u128 = 0x4daa1d40e36de6bdda58801d83a4aa6b;
+
+        let mut test_state = State::from(r16);
+        sub_cell_inv(&mut test_state);
+        assert_eq!(State::from(desired_output), test_state);
+
     }
 
 
