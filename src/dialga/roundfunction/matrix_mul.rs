@@ -22,9 +22,9 @@ pub fn matrix_mul(state: &mut State) { //Midori shuffles every column of the mat
     let pre_mix: [[u8; 4]; 4] = state.0;
 
     for col in 0..4 {
-        state.0[col][0] = pre_mix[col][1] ^ pre_mix[col][2] ^ pre_mix[col][3];
-        state.0[col][1] = pre_mix[col][0] ^ pre_mix[col][2] ^ pre_mix[col][3];
-        state.0[col][2] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][3];
-        state.0[col][3] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][2];
+        state.0[0][col] = pre_mix[1][col] ^ pre_mix[2][col] ^ pre_mix[3][col];
+        state.0[1][col] = pre_mix[0][col] ^ pre_mix[2][col] ^ pre_mix[3][col];
+        state.0[2][col] = pre_mix[0][col] ^ pre_mix[1][col] ^ pre_mix[3][col];
+        state.0[3][col] = pre_mix[0][col] ^ pre_mix[1][col] ^ pre_mix[2][col];
     }
 }
