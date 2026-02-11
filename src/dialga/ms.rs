@@ -3,7 +3,7 @@ use crate::dialga::helper::state::State;
 pub const PI_M: [u8; 16] = [0, 0xa, 5, 0xf, 0xe, 4, 0xb, 1, 9, 3, 0xc, 6, 7, 0xd, 2, 8];
 pub const PI_M_INV: [u8; 16] = [0, 7, 0xe, 9, 5, 2, 0xb, 0xc, 0xf, 8, 1, 6, 0xa, 0xd, 4, 3];
 
-pub fn ms(state: &mut State) {
+pub fn ms(state: &mut State) -> State {
     let pre_perm = *state;
     for row in 0..4 {
         for col in 0..4 {
@@ -16,9 +16,10 @@ pub fn ms(state: &mut State) {
             state.0[pi_row as usize][pi_col as usize] = pre_perm.0[row][col];
         }
     }
+    *state
 }
 
-pub fn ms_inv(state: &mut State) {
+pub fn ms_inv(state: &mut State) -> State {
     let pre_perm = *state;
     for row in 0..4 {
         for col in 0..4 {
@@ -31,6 +32,7 @@ pub fn ms_inv(state: &mut State) {
             state.0[pi_row as usize][pi_col as usize] = pre_perm.0[row][col];
         }
     }
+    *state
 }
 
 #[cfg(test)]
