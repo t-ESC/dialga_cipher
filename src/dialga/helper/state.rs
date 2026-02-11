@@ -30,7 +30,7 @@ impl Into<[u8; 16]> for State {
         let mut result = [0_u8; 16];
         for row in 0..4 {
             for col in 0..4 {
-                let index = (row << 2) + col;
+                let index = (col << 2) + row;
                 result[index] = self.0[row][col];
             }
         }
