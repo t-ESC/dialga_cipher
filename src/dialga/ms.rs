@@ -13,7 +13,7 @@ pub fn ms(state: &mut State) -> State {
             let pi_col = pi_idx >> 2;
             let pi_row = pi_idx & 0b0011;
 
-            state.0[pi_row as usize][pi_col as usize] = pre_perm.0[row][col];
+            state.0[row][col] = pre_perm.0[pi_row as usize][pi_col as usize];
         }
     }
     *state
@@ -29,7 +29,7 @@ pub fn ms_inv(state: &mut State) -> State {
             let pi_col = pi_idx >> 2;
             let pi_row = pi_idx & 0b0011;
 
-            state.0[pi_row as usize][pi_col as usize] = pre_perm.0[row][col];
+            state.0[row][col] = pre_perm.0[pi_row as usize][pi_col as usize];
         }
     }
     *state
@@ -37,7 +37,7 @@ pub fn ms_inv(state: &mut State) -> State {
 
 #[cfg(test)]
 mod tests {
-    use crate::dialga::{helper::state::State, ms::{ms, ms_inv}};
+    use super::*;
 
     #[test]
     fn test_ms() {
@@ -45,5 +45,19 @@ mod tests {
         ms(&mut test_state);
         ms_inv(&mut test_state);
         assert_eq!(State::from(0x92a33e3c3115979441131a892119bed7), test_state);
+    }
+
+    #[test]
+    fn test_vector_for_permutation_0() {
+        let testcases: [u128; _] = [0x9f95f3ff7a092a2c465dfdf31225ea00, 0x98871f6b568e38c69b2df2b8fecc46c4];
+        let test_vectors: [u128; _] = [0x9ffd0900ea7af3955dff122a2c25f346, 0x98f28ec44656b8872d6bfe38c6cc1f9b];
+
+        for (i, testcase) in testcases.iter().enumerate() {
+            let mut test_state = State::from(*testcase);
+            ms(&mut test_state);
+            assert_eq!(State::from(test_vectors[i]), test_state);
+            ms_inv(&mut test_state);
+            assert_eq!(State::from(testcases[i]), test_state);
+        }
     }
 }
