@@ -11,7 +11,7 @@ pub fn matrix_mul_old(state: &mut State, i: usize) { // make state mutalble for 
     state.0[3][i] = pre_mix.0[0][i] ^ pre_mix.0[1][i] ^ pre_mix.0[2][i];
 }
 
-pub fn matrix_mul(state: &mut State) { //Midori shuffles every column of the matrix, maybe they do here too
+pub fn matrix_mul(state: &mut State) -> State { //Midori shuffles every column of the matrix, maybe they do here too
 
     /* i-th State column multiplied with Matrix --> self inverse
     * (0 1 1 1)
@@ -22,9 +22,26 @@ pub fn matrix_mul(state: &mut State) { //Midori shuffles every column of the mat
     let pre_mix: [[u8; 4]; 4] = state.0;
 
     for col in 0..4 {
-        state.0[col][0] = pre_mix[col][1] ^ pre_mix[col][2] ^ pre_mix[col][3];
-        state.0[col][1] = pre_mix[col][0] ^ pre_mix[col][2] ^ pre_mix[col][3];
-        state.0[col][2] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][3];
-        state.0[col][3] = pre_mix[col][0] ^ pre_mix[col][1] ^ pre_mix[col][2];
+        state.0[0][col] = pre_mix[1][col] ^ pre_mix[2][col] ^ pre_mix[3][col];
+        state.0[1][col] = pre_mix[0][col] ^ pre_mix[2][col] ^ pre_mix[3][col];
+        state.0[2][col] = pre_mix[0][col] ^ pre_mix[1][col] ^ pre_mix[3][col];
+        state.0[3][col] = pre_mix[0][col] ^ pre_mix[1][col] ^ pre_mix[2][col];
+    }
+
+    *state
+}
+
+mod tests {
+    use super::*;
+    #[test]
+    fn test_vector_for_matrix_mul() {
+        let testcases: [u128; _] = [0x9f95f3ff7a092a2c465dfdf31225ea00, 0x98871f6b568e38c69b2df2b8fecc46c4];
+        let test_vectors: [u128; _] = [0x9993f5f90f7c5f595348e8e6cff837dd, 0xf3ec740070a81ee067d10e444e7cf674];
+
+        for (i, testcase) in testcases.iter().enumerate() {
+            let mut test_state = State::from(*testcase);
+            matrix_mul(&mut test_state);
+            assert_eq!(State::from(test_vectors[i]), test_state);
+        }
     }
 }

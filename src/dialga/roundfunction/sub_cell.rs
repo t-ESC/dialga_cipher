@@ -38,7 +38,7 @@ pub fn permute_bits_inv(byte: u8, i: usize) -> u8 {
 
 const SB0: [u8;16] = [0xc, 0xa, 0xd, 3, 0xe, 0xb, 0xf, 7, 8, 9, 1, 5, 0, 2, 4, 6]; //4-bit sbox, used in parallel, symmetrical SBOX
 
-pub fn sub_cell(state: &mut State) {
+pub fn sub_cell(state: &mut State) -> State {
     for row in 0..4 {
         for col in 0..4 {
             let i = row;
@@ -57,9 +57,10 @@ pub fn sub_cell(state: &mut State) {
             state.0[row][col] = state_i;
         }
     }
+    *state
 }
 
-pub fn sub_cell_inv(state: &mut State) {
+pub fn sub_cell_inv(state: &mut State) -> State{
     for row in 0..4 {
         for col in 0..4 {
             let i = row;
@@ -76,6 +77,23 @@ pub fn sub_cell_inv(state: &mut State) {
             state_i = permute_bits(state_i, i);
 
             state.0[row][col] = state_i;
+        }
+    }
+    *state
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_vector_for_sub_cell() {
+        let testcases: [u128; _] = [0x00112233445566778899aabbccddeeff, 0x2233445566778899aabbccddee00ff11];
+        let test_vectors: [u128; _] = [0xccee2233ee8866aa8899444400aa55cc, 0xddffaa22ff22770011bbcc8844669911];
+
+        for (i, testcase) in testcases.iter().enumerate() {
+            let mut test_state = State::from(*testcase);
+            sub_cell_inv(&mut test_state);
+            assert_eq!(State::from(test_vectors[i]), test_state);
         }
     }
 }
