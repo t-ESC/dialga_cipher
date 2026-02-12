@@ -30,3 +30,18 @@ pub fn matrix_mul(state: &mut State) -> State { //Midori shuffles every column o
 
     *state
 }
+
+mod tests {
+    use crate::dialga::{helper::state::State, roundfunction::{matrix_mul::matrix_mul}};
+    #[test]
+    fn test_vector_for_sub_cell() {
+        let testcases: [u128; _] = [0x9f95f3ff7a092a2c465dfdf31225ea00, 0x98871f6b568e38c69b2df2b8fecc46c4];
+        let test_vectors: [u128; _] = [0x9993f5f90f7c5f595348e8e6cff837dd, 0xf3ec740070a81ee067d10e444e7cf674];
+
+        for (i, testcase) in testcases.iter().enumerate() {
+            let mut test_state = State::from(*testcase);
+            matrix_mul(&mut test_state);
+            assert_eq!(State::from(test_vectors[i]), test_state);
+        }
+    }
+}
