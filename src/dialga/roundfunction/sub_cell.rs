@@ -81,3 +81,22 @@ pub fn sub_cell_inv(state: &mut State) -> State{
     }
     *state
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::dialga::{helper::state::*, roundfunction::sub_cell::{sub_cell, sub_cell_inv}};
+    #[test]
+    fn test_vector_for_sub_cell() {
+        let testcases: [u128; _] = [0x00112233445566778899aabbccddeeff, 0x2233445566778899aabbccddee00ff11];
+        let test_vectors: [u128; _] = [0xccee2233ee8866aa8899444400aa55cc, 0xddffaa22ff22770011bbcc8844669911];
+
+        for (i, testcase) in testcases.iter().enumerate() {
+            let mut test_state = State::from(*testcase);
+            sub_cell_inv(&mut test_state);
+            assert_eq!(State::from(test_vectors[i]), test_state);
+        }
+
+
+    }
+
+}
