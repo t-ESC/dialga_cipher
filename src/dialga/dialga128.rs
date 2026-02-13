@@ -80,20 +80,22 @@ fn r_m(state_d: &mut State, tweak: &mut State, key: [u128; 2]) {
     println!("{:x}", tweak_u128);
 }
 
-fn r_f_inv(state_d: &mut State, tweak: &mut State, key: [u128; 2]) { // todo: change to accept output tweak from previous module
-    // Tweak Schedule
-    let mut t_r: [State; ALPHA] = [State::from(0); ALPHA]; // Index will be -1 from round since round starts at 1 (whyyyyyy)
-    for i in (1..=ALPHA).rev() {
-        if i == ALPHA {
-            t_r[i-1] = *tweak;
-        } else {
-            let mut t_i = t_r[i];
-            t_i = t_i ^ key[(i)%2]; // not i-1 here since we go backwards and start on a lower index!
-            r_i_inv(&mut t_i, (i)%4); // same here!!
-            t_r[i-1] = t_i;
-        }
-    }
+fn r_b(state_d: &mut State, t_b: &[State; BETA], key: [u128; 2]) {
+    //Data Schedule
+    for i in 1..=BETA {
+        r_i(state_d, (2*(ALPHA+i))%4);
+        *state_d ^= key[(ALPHA+i+1)%2] ^ C_B[2*(i-1)];
 
+        r_i(state_d, (2*(ALPHA+i)+1)%4);
+        let mut t_b_i = t_b[i-1];
+        ms(&mut t_b_i);
+        *state_d ^= t_b_i ^ C_B[2*i -1];
+    }
+    sub_cell_inv(state_d);
+    *state_d ^= key[0] ^ key[1];
+}
+
+fn r_f_inv(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     for i in (1..=ALPHA).rev() {
         if i == 1 {
             *state_d ^= t_r[0] ^ C_F[1];
@@ -126,7 +128,22 @@ fn r_m_inv(state_d: &mut State, tweak: &mut State, key: [u128; 2]) {
     r_i_inv(state_d, (2*ALPHA)%4);
 }
 
+fn r_b_inv(state_d: &mut State, t_b: &[State; BETA], key: [u128; 2]) {
+    *state_d ^= key[0] ^ key[1];
+    sub_cell_inv(state_d);
 
+    // Data Schedule
+    for i in (1..=BETA).rev() {
+        let mut t_b_i = t_b[i-1];
+        ms(&mut t_b_i);
+        *state_d ^= t_b_i ^ C_B[2*i -1];
+        r_i_inv(state_d, (2*(ALPHA+i)+1)%4);
+        
+
+        *state_d ^= key[(ALPHA+i+1)%2] ^ C_B[2*(i-1)];
+        r_i_inv(state_d, (2*(ALPHA+i))%4);
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -169,11 +186,20 @@ mod tests {
 
     #[test]
     fn test_encryption_rm() { // only for r_m --> tested for correctness already
-        let mut test_state = State::from(PAINTEXT);
-        let mut tweak = State::from(TWEAK);
-        r_m(&mut test_state, &mut tweak, KEY);
-        r_m_inv(&mut test_state, &mut tweak, KEY);
-        assert_eq!(State::from(PAINTEXT), test_state);
+        let (_, state_d_rm, _) = prepare_tests();
+        let mut test_case = State::from(PAINTEXT);
+        r_m(&mut test_case, &state_d_rm, KEY);
+        r_m_inv(&mut test_case, &state_d_rm, KEY);
+        assert_eq!(State::from(PAINTEXT), test_case);
+    }
+
+    #[test]
+    fn test_encryption_rb() {
+        let (_, _, state_d_rb) = prepare_tests();
+        let mut test_case = State::from(PAINTEXT);
+        r_b(&mut test_case, &state_d_rb, KEY);
+        r_b_inv(&mut test_case, &state_d_rb, KEY);
+        assert_eq!(State::from(PAINTEXT), test_case);
     }
 
 
