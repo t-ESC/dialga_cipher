@@ -66,7 +66,7 @@ fn tweak_schedule(tweak: State, key: [u128; 2], state_t_rf: &mut [State; ALPHA],
             if i == 1 {
                 t_i = tmp_state;
             } else {
-                t_i = state_t_rb[i-1];
+                t_i = state_t_rb[i-2];
             }
             t_i ^= key[(ALPHA-i-1)%2];
             r_i_inv(&mut t_i, (ALPHA-i-1)%4);
