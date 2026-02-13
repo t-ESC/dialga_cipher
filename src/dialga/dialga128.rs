@@ -94,23 +94,14 @@ fn r_f(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     }
 }
 
-fn r_m(state_d: &mut State, tweak: &mut State, key: [u128; 2]) {
-    // Tweak Schedule
-    let mut t_m: [State; 2] = [State::from(0); 2];
-    t_m[0] = sub_cell_inv(tweak);
-    sub_cell_inv(tweak);
-    *tweak = *tweak ^ key[(ALPHA -1)%2]; 
-    t_m[1] = r_i_inv(tweak, (ALPHA-1)%4);
-
+fn r_m(state_d: &mut State, t_m: &[State; 2], key: [u128; 2]) {
     //Data Schedule
     r_i(state_d, (2*ALPHA)%4);
     *state_d ^=  t_m[0] ^ key[(ALPHA - 1)%2] ^ C_M[0];
 
     r_i(state_d, (2*ALPHA + 1)%4);
-    *state_d ^= ms(&mut t_m[1]) ^ C_M[1];
-
-    let tweak_u128:u128 = State::into(*tweak);
-    println!("{:x}", tweak_u128);
+    let mut t_m_1 = t_m[1];
+    *state_d ^= ms(&mut t_m_1) ^ C_M[1];
 }
 
 fn r_b(state_d: &mut State, t_b: &[State; BETA], key: [u128; 2]) {
@@ -145,17 +136,10 @@ fn r_f_inv(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     }
 }
 
-fn r_m_inv(state_d: &mut State, tweak: &mut State, key: [u128; 2]) {
-    // Tweak schedule
-    let mut t_m: [State; 2] = [State::from(0); 2];
-    t_m[1] = *tweak;
-    r_i(tweak, (ALPHA-1)%4);
-    *tweak = *tweak ^ key[(ALPHA -1)%2];
-    t_m[0] = sub_cell_inv(tweak);
-    sub_cell_inv(tweak);
-
+fn r_m_inv(state_d: &mut State, t_m: &[State; 2], key: [u128; 2]) {
     // State schedule
-    *state_d ^= ms(&mut t_m[1]) ^ C_M[1];
+    let mut t_m_1 = t_m[1];
+    *state_d ^= ms(&mut t_m_1) ^ C_M[1];
     r_i_inv(state_d, (2*ALPHA + 1)%4);
     *state_d ^=  t_m[0] ^ key[(ALPHA - 1)%2] ^ C_M[0];
     r_i_inv(state_d, (2*ALPHA)%4);
