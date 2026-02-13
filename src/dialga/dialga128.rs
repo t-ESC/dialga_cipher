@@ -29,19 +29,44 @@ pub fn decrypt(ciphertext: u128, tweak: u128, key: [u128; 2]) -> u128 {
     plaintext ^ key[0] ^ key[1] ^ 0x2233445566778899aabbccddee00ff11 // Hard coded Tweak until reverse schedule is fully implemented
 }
 
-fn r_f(state_d: &mut State, tweak: &mut State, key: [u128; 2]) {
-    // Tweak Schedule
-    let mut t_r: [State; ALPHA] = [State::from(0); ALPHA]; // Index will be -1 from round since round starts at 1 (whyyyyyy)
+fn tweak_schedule(tweak: State, key: [u128; 2], state_t_rf: &mut [State; ALPHA], state_t_rm: &mut [State; 2], state_t_rb: &mut [State; BETA]) {
+    //R_F schedule
     for i in 1..=ALPHA {
-        if i == 1 {t_r[i-1] = *tweak ^ key[(i-1)%2];}
+        if i == 1 {state_t_rf[i-1] = tweak ^ key[(i-1)%2];}
         else {
-            let mut t_i = t_r[i-2]; // previous state
+            let mut t_i = state_t_rf[i-2]; // previous state
             r_i(&mut t_i, (i-1)%4);
-            t_r[i-1] = t_i ^ key[(i-1)%2];
+            state_t_rf[i-1] = t_i ^ key[(i-1)%2];
         }
     }
-    *tweak = t_r[ALPHA-1];
+    let mut tmp_state = state_t_rf[ALPHA-1];
 
+    //R_M Schedule
+    state_t_rm[0] = sub_cell_inv(&mut tmp_state);
+    sub_cell_inv(&mut tmp_state);
+    tmp_state = tmp_state ^ key[(ALPHA -1)%2]; 
+    state_t_rm[1] = r_i_inv(&mut tmp_state, (ALPHA-1)%4);
+
+    //R_B Schedule
+    for i in 1..=BETA {
+        if i == BETA {
+            state_t_rb[i-1] = state_t_rb[i-2] ^ key[(ALPHA-i-1)%2];
+        }
+        else {
+            let mut t_i;
+            if i == 1 {
+                t_i = tmp_state;
+            } else {
+                t_i = state_t_rb[i-1];
+            }
+            t_i ^= key[(ALPHA-i-1)%2];
+            r_i_inv(&mut t_i, (ALPHA-i-1)%4);
+            state_t_rb[i-1] = t_i;
+        }
+    }
+}
+
+fn r_f(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     for i in 1..=ALPHA {
         if i == 1 {
             // Round 1
