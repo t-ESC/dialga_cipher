@@ -8,25 +8,33 @@ const ALPHA:usize = 4;
 
 pub fn encrypt(plaintext: u128, tweak: u128, key: [u128; 2]) -> u128 {
     let mut state_d = State::from(plaintext ^ key[0] ^ key[1] ^ tweak);
-    let mut state_t = State::from(tweak);
+    let mut state_t_rf = [State::from(0); ALPHA];
+    let mut state_t_rm = [State::from(0); 2];
+    let mut state_t_rb = [State::from(0); BETA];
 
-    r_f(&mut state_d, &mut state_t, key);
-    r_m(&mut state_d, &mut state_t, key);
-    // r_b
+    tweak_schedule(State::from(tweak), key, &mut state_t_rf, &mut state_t_rm, &mut state_t_rb);
+    
+    r_f(&mut state_d, &state_t_rf, key);
+    r_m(&mut state_d, &state_t_rm, key);
+    r_b(&mut state_d, &state_t_rb, key);
     let ciphertext: u128 = state_d.into();
     ciphertext 
 }
 
 pub fn decrypt(ciphertext: u128, tweak: u128, key: [u128; 2]) -> u128 {
     let mut state_d = State::from(ciphertext);
-    let mut state_t = State::from(tweak);
+    let mut state_t_rf = [State::from(0); ALPHA];
+    let mut state_t_rm = [State::from(0); 2];
+    let mut state_t_rb = [State::from(0); BETA];
 
-    // r_b_inv
-    r_m_inv(&mut state_d, &mut state_t, key);
-    r_f_inv(&mut state_d, &mut state_t, key);
+    tweak_schedule(State::from(tweak), key, &mut state_t_rf, &mut state_t_rm, &mut state_t_rb);
+
+    r_b_inv(&mut state_d, &state_t_rb, key);
+    r_m_inv(&mut state_d, &state_t_rm, key);
+    r_f_inv(&mut state_d, &state_t_rf, key);
 
     let plaintext:u128 = state_d.into();
-    plaintext ^ key[0] ^ key[1] ^ 0x2233445566778899aabbccddee00ff11 // Hard coded Tweak until reverse schedule is fully implemented
+    plaintext ^ key[0] ^ key[1] ^ tweak // Hard coded Tweak until reverse schedule is fully implemented
 }
 
 fn tweak_schedule(tweak: State, key: [u128; 2], state_t_rf: &mut [State; ALPHA], state_t_rm: &mut [State; 2], state_t_rb: &mut [State; BETA]) {
