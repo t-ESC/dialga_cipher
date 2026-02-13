@@ -77,21 +77,17 @@ fn tweak_schedule(tweak: State, key: [u128; 2], state_t_rf: &mut [State; ALPHA],
 
 fn r_f(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     for i in 1..=ALPHA {
-        if i == 1 {
-            // Round 1
-            r_i(state_d, 0);
-            *state_d ^= key[1] ^ C_F[0];
-            // Round 2
-            r_i(state_d, 1);
-            *state_d ^= t_r[0] ^ C_F[1];
-        } else {
-            // round 2i-2
-            r_i(state_d, (2*i-2)%4);
-            *state_d ^= key[i%2] ^ C_F[2*i - 2];
-            // round 2i-1
-            r_i(state_d, (2*i-1)%4);
-            *state_d ^= t_r[i-1] ^ C_F[2*i - 1];
-        }
+        r_i(state_d, (2*i-2)%4);
+        *state_d ^= key[i%2] ^ C_F[2*(i-1)];
+
+        let state_printout:u128 = State::into(*state_d);
+        println!("{:x}", state_printout);
+
+        r_i(state_d, (2*i-2)%4);
+        *state_d ^= t_r[i-1] ^ C_F[2*(i-1)];
+
+        let state_printout:u128 = State::into(*state_d);
+        println!("{:x}", state_printout);
     }
 }
 
@@ -122,18 +118,17 @@ fn r_b(state_d: &mut State, t_b: &[State; BETA], key: [u128; 2]) {
 
 fn r_f_inv(state_d: &mut State, t_r: &[State; ALPHA], key: [u128; 2]) {
     for i in (1..=ALPHA).rev() {
-        if i == 1 {
-            *state_d ^= t_r[0] ^ C_F[1];
-            r_i_inv(state_d, 1);
-            *state_d ^= key[1] ^ C_F[0];
-            r_i_inv(state_d, 0);
-        } else {
-            *state_d ^= t_r[i-1] ^ C_F[2*i - 1];
-            r_i_inv(state_d, (2*i-1)%4);
+        let state_printout:u128 = State::into(*state_d);
+        println!("{:x}", state_printout);
 
-            *state_d ^= key[i%2] ^ C_F[2*i - 2];
-            r_i_inv(state_d, (2*i-2)%4);
-        }
+        *state_d ^= t_r[i-1] ^ C_F[2*(i-1)];
+        r_i_inv(state_d, (2*i-2)%4);
+
+        let state_printout:u128 = State::into(*state_d);
+        println!("{:x}", state_printout);
+        
+        *state_d ^= key[i%2] ^ C_F[2*(i-1)];
+        r_i_inv(state_d, (2*i-2)%4);
     }
 }
 
