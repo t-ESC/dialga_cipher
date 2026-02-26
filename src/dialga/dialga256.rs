@@ -196,7 +196,7 @@ fn r_b(state_d: &mut State, t0_b: &[State; BETA], t1_b: &[State; BETA+1],key: [u
         r_i(state_d, (2*(ALPHA+i)+1)%4);
         let mut t0_b_i = t0_b[i-1];
         ms(&mut t0_b_i);
-        *state_d ^= t0_b_i ^ C_B[2*(i-1)]; 
+        *state_d ^= t0_b_i ^ C_B[2*i-1];
     }
 
     sub_cell(state_d);
@@ -215,7 +215,7 @@ fn r_b_inv(state_d: &mut State, t0_b: &[State; BETA], t1_b: &[State; BETA+1],key
     for i in (1..=BETA).rev() {
         let mut t0_b_i = t0_b[i-1];
         ms(&mut t0_b_i);
-        *state_d ^= t0_b_i ^ C_B[2*(i-1)]; 
+        *state_d ^= t0_b_i ^ C_B[2*i-1]; 
         r_i_inv(state_d, (2*(ALPHA+i)+1)%4);
 
         let mut t1_b_i = t1_b[i-1];
@@ -297,10 +297,12 @@ mod tests {
     #[test]
     fn test_encryption_rb() {
         let (_, _, _, _, state_t0_rb, state_t1_rb) = prepare_tests();
-        let mut test_case = State::from(0xdc6ddc2f5b2bf7778d678b646e6be7be_u128);
+        let mut test_case = State::from(0x2e823a29ffd14704b33bb433c3ec52c0);
         r_b(&mut test_case, &state_t0_rb, &state_t1_rb, KEY);
+        let test_case_u128:u128 = State::into(test_case);
+        assert_eq!(0xe129ff0920371753db65532540d06881, test_case_u128);
         r_b_inv(&mut test_case, &state_t0_rb, &state_t1_rb, KEY);
-        assert_eq!(State::from(0xdc6ddc2f5b2bf7778d678b646e6be7be_u128), test_case);       
+        assert_eq!(State::from(0x2e823a29ffd14704b33bb433c3ec52c0), test_case);       
     }
 
 
