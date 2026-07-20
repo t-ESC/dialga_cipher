@@ -9,7 +9,7 @@ pub mod roundconstants;
 mod tests {
     use crate::dialga::{helper::state::State, roundfunction::r_i::{r_i, r_i_inv}};
     use super::*;
-    use std::{result, thread};
+    use std::thread;
     use rand::RngExt;
     use indicatif::{ProgressBar, ProgressStyle};
 
@@ -70,14 +70,14 @@ mod tests {
 
     #[test]
     fn binomial_test() {
-        let input_delta = 0x00000000000000000000000000000001_u128;
-        let output_delta = 0x_00000000200000000000800000000048_u128;
+        let input_delta: u128 = 0x00000000000000000000000001000000;
+        let output_delta: u128 = 0x01100400000100040000044004000004;
 
-        let n_rounds:usize = 1;
+        let n_rounds:usize = 2;
         let first_round:usize = 0;
         let backwards:bool = true;
 
-        let n_trials:usize = 1_000_000;
+        let n_trials:usize = 335_544_320;
         let n_threads:usize = 12;
 
         let result = experimental_verification(
